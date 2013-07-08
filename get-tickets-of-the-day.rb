@@ -11,6 +11,7 @@ DB.create_table?(:items) do
   String :status
   String :size
   String :item_type
+  String :tags
 end
 db = DB[:items]
 
@@ -37,8 +38,12 @@ items.each do |item|
   status    = item['status']
   size      = item['score']
   item_type = item['type']
+  tags      = item['tags'].to_json
 
   unless db.where(:day => day, :item_id => item_id).any?
-    DB[:items].insert(:day => day, :item_id => item_id, :status => status, :size => size, :item_type => item_type)
+    db.insert(:day => day, :item_id => item_id, :status => status, :item_type => item_type)
   end
+
+  # Always update size and tags.
+  db.where(:item_id => item_id).update(:size => size, :tags => tags)
 end
